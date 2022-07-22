@@ -1,3 +1,4 @@
+from pip import main
 import spacy
 from spacytextblob.spacytextblob import SpacyTextBlob
 from pathlib import Path
@@ -8,35 +9,35 @@ NEG_TRAIN_DIRECTORY = Path('./aclImdb/train/neg')
 POS_TRAIN_DIRECTORY = Path('./aclImdb/train/pos')
 
 
-def make_doc_object(text):
-    nlp = spacy.load('en_core_web_sm')
-    nlp.add_pipe('spacytextblob')
-    doc = nlp(text)
-    return doc
-
-
-def get_sentiment(blob):
-    return blob.sentiment
+def get_sentiment(doc):
+    return doc._.blob.sentiment
 
 
 def process_all():
-    reviews = []
+
+    nlp = spacy.load('en_core_web_sm')
+    nlp.add_pipe('spacytextblob')
+
+    reviews = UNSUP_TRAIN_DIRECTORY.glob('*.txt')
 
     results = {}
-    for review in reviews:
+    review_count = 3
+    for num in range(review_count):
+        review = next(reviews)
         with open(Path(review), 'r') as file:
             text = file.read()
 
         # read file
-        doc = make_doc_object(review)
-        sentiment = get_sentiment(doc._.blob)
+        doc = nlp(text)
+        sentiment = get_sentiment(doc)
 
-        results[review] = {
+        results[review.name] = {
             "text": text,
             "subjectivity": sentiment.subjectivity,
             "polarity": sentiment.polarity
-
         }
+
+    print(results)
 
 
 """
@@ -55,3 +56,6 @@ doc._.blob.words
 doc._.blob.words[index].singularize()
 doc._.blob.words[index].pluralize()
 """
+
+if __name__ == "__main__":
+    process_all()
