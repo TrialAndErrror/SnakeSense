@@ -1,5 +1,6 @@
 {
     "files.autoSave": "onFocusChange",
     "editor.formatOnSave": true,
-    "editor.formatOnSaveMode": "modificationsIfAvailable"
+    "editor.formatOnSaveMode": "modificationsIfAvailable",
+    "editor.acceptSuggestionOnEnter": "off"
 }

@@ -5,24 +5,26 @@ from colorama import Fore, Style
 
 @dataclass
 class Review:
-    file_name: str
+    name: str
     text: str
     subjectivity: float
     polarity: float
 
     def print(self):
         print()
-        print(f"File Name: {self.file_name}")
+        print(f"File Name: {self.name}")
         self.print_subjectivity()
         self.print_polarity()
         print()
         print(f"{self.text}")
 
     def print_subjectivity(self):
-        if self.subjectivity >=0.5:
-            print(Style.BRIGHT + Fore.YELLOW + f"Subjectivity: {self.subjectivity}")
+        if self.subjectivity >= 0.5:
+            print(Style.BRIGHT + Fore.YELLOW +
+                  f"Subjectivity: {self.subjectivity}")
         else:
-            print(Style.DIM + Fore.WHITE + f"Subjectivity: {self.subjectivity}")
+            print(Style.DIM + Fore.WHITE +
+                  f"Subjectivity: {self.subjectivity}")
         print(Style.RESET_ALL, end='')
 
     def print_polarity(self):
@@ -33,3 +35,9 @@ class Review:
         else:
             print(Style.BRIGHT + Fore.RED + f"Polarity: {self.polarity}")
         print(Style.RESET_ALL, end='')
+
+    def get_score(self):
+        if self.subjectivity == 0:
+            return self.polarity
+        else:
+            return (1/self.subjectivity) * self.polarity

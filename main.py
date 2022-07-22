@@ -1,32 +1,25 @@
-from pip import main
-import spacy
-from spacytextblob.spacytextblob import SpacyTextBlob
-from pathlib import Path
-from models.processor import ReviewProcessor
+from models.processor import make_movie_review_processor
+from models.api_data import YelpDataGatherer
 
 
-UNSUP_TRAIN_DIRECTORY = Path('./aclImdb/train/unsup')
-NEG_TRAIN_DIRECTORY = Path('./aclImdb/train/neg')
-POS_TRAIN_DIRECTORY = Path('./aclImdb/train/pos')
+def process_all_movies():
+    # from colorama import init
+    # init()
+    # nlp = spacy.load('en_core_web_sm')
+    # nlp.add_pipe('spacytextblob')
 
-
-def get_sentiment(doc):
-    return doc._.blob.sentiment
-
-
-def process_all():
-    from colorama import init
-    init()
-    nlp = spacy.load('en_core_web_sm')
-    nlp.add_pipe('spacytextblob')
-
-    review_files = UNSUP_TRAIN_DIRECTORY.glob('*.txt')
-
-    processor = ReviewProcessor(review_files)
+    processor = make_movie_review_processor()
     processor.process_reviews()
     processor.print_polar_results(3)
     processor.print_subjective_results(3)
 
+
+def process_all_restaurants():
+    processor = YelpDataGatherer()
+    processor.create_yelp_api_obj()
+    processor.search_for_restaurants()
+    processor.process_all_restaurants()
+    processor.get_rankings()
 
 """
 Polarity: {doc._.blob.polarity}
@@ -46,4 +39,4 @@ doc._.blob.words[index].pluralize()
 """
 
 if __name__ == "__main__":
-    process_all()
+    process_all_restaurants()

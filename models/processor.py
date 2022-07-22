@@ -2,63 +2,85 @@ from ctypes import pointer
 import spacy
 from spacytextblob.spacytextblob import SpacyTextBlob
 from .review import Review
-from typing import List, Text
+from typing import List, Text, Tuple
+from pathlib import Path
+
+UNSUP_TRAIN_DIRECTORY = Path('./aclImdb/train/unsup')
+NEG_TRAIN_DIRECTORY = Path('./aclImdb/train/neg')
+POS_TRAIN_DIRECTORY = Path('./aclImdb/train/pos')
 
 
 class ReviewProcessor:
-    review_files: List[Text] = []
+    reviews: List[Tuple[Text, Text]] = []
     results: List[Review] = []
-    review_count: int = 100
 
-    def __init__(self, review_files):
+    def __init__(self, reviews: list):
         self.nlp = spacy.load('en_core_web_sm')
         self.nlp.add_pipe('spacytextblob')
 
-        self.review_files = review_files
+        self.reviews = reviews
 
     def process_reviews(self):
-        for _ in range(self.review_count):
-
-            review_filename, text = self.get_next_review_text()
-            doc = self.nlp(text)
-
+        for review_filename, review_text in self.reviews:
+            doc = self.nlp(review_text)
             sentiment = self.get_sentiment(doc)
-
             self.results.append(Review(
-                file_name=review_filename,
-                text=text,
+                name=review_filename,
+                text=review_text,
                 subjectivity=sentiment.subjectivity,
                 polarity=sentiment.polarity,
             ))
 
-    def get_next_review_text(self):
-        review_file = next(self.review_files)
+    def get_sentiment(self, doc):
+        return doc._.blob.sentiment
+
+    def get_polar_results(self):
+        self.results.sort(key=lambda x: x.polarity, reverse=True)
+        return self.results
+
+    def print_polar_results(self, num_results: int):
+        print()
+        results = self.get_polar_results()
+        print_section_header("Positive Reviews")
+        [review.print() for review in results[:num_results]]
+        print('\n\n')
+        print_section_header("Negative Reviews")
+        [review.print() for review in results[-num_results:]]
+        print()
+
+    def get_subjective_results(self):
+        self.results.sort(key=lambda x: x.subjectivity, reverse=True)
+        return self.results
+
+    def print_subjective_results(self, num_results: int):
+        print()
+        results = self.get_subjective_results()
+        print_section_header('Most Subjective Reviews')
+        [review.print() for review in results[:num_results]]
+        print('\n\n')
+        print_section_header('Least Subjective Reviews')
+        [review.print() for review in results[-num_results:]]
+        print()
+
+
+def make_movie_review_processor():
+    def get_one_file_text(review_file):
         with open(review_file, 'r') as file:
             text = file.read()
         return review_file.name, text
 
-    def get_sentiment(self, doc):
-        return doc._.blob.sentiment
+    review_count: int = 100
+    review_files = UNSUP_TRAIN_DIRECTORY.glob('*.txt')
 
-    def print_polar_results(self, num_results: int):
-        print()
-        self.results.sort(key=lambda x: x.polarity, reverse=True)
-        print_section_header("Positive Reviews")
-        [review.print() for review in self.results[:num_results]]
-        print('\n\n')
-        print_section_header("Negative Reviews")
-        [review.print() for review in self.results[-num_results:]]
-        print()
+    texts_to_review = []
+    for _ in range(review_count):
+        review_file = next(review_files)
+        review_filename, text = get_one_file_text(review_file)
+        texts_to_review.append((review_filename, text))
 
-    def print_subjective_results(self, num_results: int):
-        print()
-        self.results.sort(key=lambda x: x.subjectivity, reverse=True)
-        print_section_header('Most Subjective Reviews')
-        [review.print() for review in self.results[:num_results]]
-        print('\n\n')
-        print_section_header('Least Subjective Reviews')
-        [review.print() for review in self.results[-num_results:]]
-        print()
+    obj = ReviewProcessor(texts_to_review)
+
+    return obj
 
 
 def print_section_header(text):
