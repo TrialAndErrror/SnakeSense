@@ -1,4 +1,3 @@
-from ctypes import pointer
 import spacy
 from spacytextblob.spacytextblob import SpacyTextBlob
 from .review import Review
@@ -21,18 +20,16 @@ class ReviewProcessor:
         self.reviews = reviews
 
     def process_reviews(self):
-        for review_filename, review_text in self.reviews:
-            doc = self.nlp(review_text)
-            sentiment = self.get_sentiment(doc)
-            self.results.append(Review(
-                name=review_filename,
-                text=review_text,
+        self.results = [self.process_one_review(filename, text) for filename, text in self.reviews]
+
+    def process_one_review(self, filename, text):
+        sentiment = self.nlp(text)._.blob.sentiment
+        return Review(
+                name=filename,
+                text=text,
                 subjectivity=sentiment.subjectivity,
                 polarity=sentiment.polarity,
-            ))
-
-    def get_sentiment(self, doc):
-        return doc._.blob.sentiment
+            )
 
     def get_polar_results(self):
         self.results.sort(key=lambda x: x.polarity, reverse=True)
@@ -84,4 +81,4 @@ def make_movie_review_processor():
 
 
 def print_section_header(text):
-    print("*" * 10 + f" {text} " + "*" * 10) 
+    print("*" * 10 + f" {text} " + "*" * 10)
