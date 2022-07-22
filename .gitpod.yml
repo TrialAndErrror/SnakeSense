@@ -6,4 +6,18 @@ tasks:
   - init: pip install -r requirements.txt
     command: python main.py
 
+github:
+  prebuilds:
+    addBadge: false
+    addCheck: true
+    addLabel: false
+    branches: true
+    master: true
+    pullRequests: true
+    pullRequestsFromForks: false
+
+vscode:
+  extensions:
+    - ms-python:python
+    - batisteo.vscode-django
 
