@@ -1,16 +1,54 @@
-# This is a sample Python script.
-
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
+import spacy
+from spacytextblob.spacytextblob import SpacyTextBlob
+from pathlib import Path
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+def make_doc_object(text):
+    nlp = spacy.load('en_core_web_sm')
+    nlp.add_pipe('spacytextblob')
+    doc = nlp(text)
+    return doc
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+def get_sentiment(blob):
+    return blob.sentiment
+
+def process_all():
+    test_directory = Path()
+    reviews = []
+
+    results = {}
+    for review in reviews:
+        with open(Path(review), 'r') as file:
+            text = file.read()
+
+        # read file
+        doc = make_doc_object(review)
+        sentiment = get_sentiment(doc._.blob)
+
+        results[review] = {
+            "text": text,
+            "subjectivity": sentiment.subjectivity,
+            "polarity": sentiment.polarity
+
+        }
+
+
+
+
+"""
+Polarity: {doc._.blob.polarity}
+Subjectivity: {doc._.blob.subjectivity}
+Assessments: {doc._.blob.sentiment_assessments.assessments}
+NGrams: {doc._.blob.ngrams()}
+"""
+
+"""
+doc._.blob.sentiment
+Polarity measures whether the expressed opinion is positive (1.0), negative (-1.0), or neutral.
+Subjectivity measures how objective (0.0) or subjective (1.0) a statement is.
+
+doc._.blob.words
+doc._.blob.words[index].singularize()
+doc._.blob.words[index].pluralize()
+"""
