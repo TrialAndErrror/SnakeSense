@@ -2,6 +2,7 @@ from pip import main
 import spacy
 from spacytextblob.spacytextblob import SpacyTextBlob
 from pathlib import Path
+from models.processor import ReviewProcessor
 
 
 UNSUP_TRAIN_DIRECTORY = Path('./aclImdb/train/unsup')
@@ -14,30 +15,17 @@ def get_sentiment(doc):
 
 
 def process_all():
-
+    from colorama import init
+    init()
     nlp = spacy.load('en_core_web_sm')
     nlp.add_pipe('spacytextblob')
 
-    reviews = UNSUP_TRAIN_DIRECTORY.glob('*.txt')
+    review_files = UNSUP_TRAIN_DIRECTORY.glob('*.txt')
 
-    results = {}
-    review_count = 3
-    for num in range(review_count):
-        review = next(reviews)
-        with open(Path(review), 'r') as file:
-            text = file.read()
-
-        # read file
-        doc = nlp(text)
-        sentiment = get_sentiment(doc)
-
-        results[review.name] = {
-            "text": text,
-            "subjectivity": sentiment.subjectivity,
-            "polarity": sentiment.polarity
-        }
-
-    print(results)
+    processor = ReviewProcessor(review_files)
+    processor.process_reviews()
+    processor.print_polar_results(3)
+    processor.print_subjective_results(3)
 
 
 """
