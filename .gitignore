@@ -149,3 +149,4 @@ backend/static/js/*
 
 # Ignore API Secrets files
 **/api_config.json
+aclImdb

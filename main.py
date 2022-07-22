@@ -18,6 +18,7 @@ def make_doc_object(text):
 def get_sentiment(blob):
     return blob.sentiment
 
+
 def process_all():
     reviews = []
 
@@ -36,8 +37,6 @@ def process_all():
             "polarity": sentiment.polarity
 
         }
-
-
 
 
 """
