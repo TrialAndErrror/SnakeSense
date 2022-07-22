@@ -3,6 +3,11 @@ from spacytextblob.spacytextblob import SpacyTextBlob
 from pathlib import Path
 
 
+UNSUP_TRAIN_DIRECTORY = Path('./aclImdb/train/unsup')
+NEG_TRAIN_DIRECTORY = Path('./aclImdb/train/neg')
+POS_TRAIN_DIRECTORY = Path('./aclImdb/train/pos')
+
+
 def make_doc_object(text):
     nlp = spacy.load('en_core_web_sm')
     nlp.add_pipe('spacytextblob')
@@ -14,7 +19,6 @@ def get_sentiment(blob):
     return blob.sentiment
 
 def process_all():
-    test_directory = Path()
     reviews = []
 
     results = {}
